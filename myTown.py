@@ -1,6 +1,7 @@
 #--------------------
 import requests
 import datetime
+from sheddinglib import currentStatus
 
 # returns local time. yeah.
 now = datetime.datetime.now()
@@ -9,6 +10,7 @@ tomorrow = now + datetime.timedelta(days=1)
 tomorrow = tomorrow.strftime("%a, %d %b")
 
 
+'''
 def currentStatus():
 
    noLoadLevel = -1
@@ -19,12 +21,11 @@ def currentStatus():
       print(noLoadLevel)
 
    return noLoadLevel
-
+'''
 
 def getTimes(sheddingStatus):
 
    foundDate = False
-   dateLine = ""
    shedDates = {}
    resp = requests.get(f"https://loadshedding.eskom.co.za/Loadshedding/GetScheduleM/1026141/{sheddingStatus}/3/1")
    lines = resp.text.splitlines()
@@ -33,27 +34,26 @@ def getTimes(sheddingStatus):
 
       if today in line:
          foundDate = True
-         dateLine = line
-         if shedDates.get(dateLine, " ") == " ":
-            shedDates[dateLine] = []
+         if shedDates.get(today, " ") == " ":
+            shedDates[today] = []
 
       if tomorrow in line:
          foundDate = False
-         dateLine = ""
 
       if (foundDate == True) and \
          "Time" in line and \
          "KUDUBE / MANYALETI" in line:
          timeLine = line.split('{')[1].split('}')[0]
-         if timeLine not in shedDates[dateLine]:
-            shedDates[dateLine].append(timeLine)
+         if timeLine not in shedDates[today]:
+            shedDates[today].append(timeLine)
 
    for key in shedDates.keys():
       print(key)
 
       shedDates[key].sort()
       for times in shedDates[key]:
-         print(times.split(',')[0][7:])
+         #print(times.split(',')[0][7:].replace('"', '').split(' ')[0])
+         print(times.split(',')[0][7:].replace('"', ''))
 
 def main():
    
